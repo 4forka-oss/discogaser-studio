@@ -569,7 +569,7 @@ html.has-3d .hero__fallback{ opacity:0; pointer-events:none; }
 #cfgPayWrap .hint{ margin:8px 0 0; font-size:14px; }
 
 /* Hero: H1 SEO + eslogan */
-.hero__slogan{ font-family:"Instrument Serif", Georgia, "Times New Roman", serif; font-style:italic; font-weight:400; text-transform:none; color:var(--text); font-size:clamp(28px, 3.6vw, 44px); line-height:1.08; letter-spacing:0; margin:4px 0 0; max-width:none; }
+.hero__slogan{ font-family:var(--f-body); font-style:normal; font-weight:600; text-transform:none; color:#fff; font-size:clamp(26px, 3.2vw, 40px); line-height:1.15; letter-spacing:0; margin:4px 0 0; max-width:none; }
 .hero__title{ margin-bottom:18px; }
 
 /* Barra del total en móvil: siempre en una línea */
@@ -603,3 +603,5 @@ html.has-3d .hero__fallback{ opacity:0; pointer-events:none; }
 .qty input:checked + span{ border-color:var(--red-2); background:rgba(225,6,15,.14); }
 .qty input:focus-visible + span{ outline:2px solid #fff; outline-offset:2px; }
 .check--qty.is-off{ opacity:.45; }
+
+.hero__slogan .red{ color:#fff; }
