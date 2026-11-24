@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reservar cabina · Discogaser Studio Teruel</title>
+<meta name="description" content="Reserva tu hora en el estudio DJ de Discogaser Studio en Teruel: pinchar, grabar tu set, packs, bonos y planes. Mira los huecos libres y reserva en un minuto.">
+<link rel="canonical" href="https://discogaserstudio.es/reservar/">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Discogaser">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="../img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=20261124a">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <a class="top__logo" href="#/inicio" aria-label="Inicio">
+      <img src="../img/logo-discogaser-312.webp" alt="Discogaser" width="156" height="28">
+      <span class="top__tag" id="topTag">Studio</span>
+    </a>
+    <a class="top__web" id="topWeb" href="../" aria-label="Volver a la web">Web</a>
+  </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <main class="view" id="view" tabindex="-1">
+    <!-- Contenido mínimo si el JavaScript no carga -->
+    <section class="pad">
+      <h1 class="h1">Reserva tu cabina</h1>
+      <p class="muted">Cargando la agenda…</p>
+      <noscript><p>Activa JavaScript para reservar o escríbenos por WhatsApp.</p></noscript>
+    </section>
+  </main>
+
+  <nav class="tabs" id="tabs" aria-label="Secciones"></nav>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet__bg" data-close></div>
+  <div class="sheet__card" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <button class="sheet__x" data-close aria-label="Cerrar">×</button>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js?v=20261124a"></script>
+<script src="../js/data.js?v=20261124a"></script>
+<script src="../js/precios.js?v=20261124a"></script>
+<script src="app.js?v=20261124a"></script>
+</body>
+</html>

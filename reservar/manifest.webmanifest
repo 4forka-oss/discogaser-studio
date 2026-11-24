@@ -1,0 +1,15 @@
+{
+  "name": "Discogaser Studio · Reservas",
+  "short_name": "Discogaser",
+  "description": "Reserva tu cabina DJ en Teruel: pinchar, grabar, bonos y planes.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "lang": "es",
+  "icons": [
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "../img/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}

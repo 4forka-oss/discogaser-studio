@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /api/
+Allow: /
+
+# [DOMINIO] cambiar por el dominio real
+Sitemap: https://discogaserstudio.es/sitemap.xml
