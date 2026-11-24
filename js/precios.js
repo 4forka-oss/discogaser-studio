@@ -22,6 +22,20 @@
     return service === "grabar" ? d.grabar.tarifas : (service === "bono" ? d.bonos.tarifas : d.pinchar.tarifas);
   }
 
+  /* Suplemento de mezclador de un bono (una vez, al comprarlo) */
+  function bonoSup(h, mixerId) {
+    var t = (D().bonos.tarifas || []).filter(function (x) { return x.h === +h; })[0];
+    if (!t || !mixerId || mixerId === "a9") return 0;
+    return t.sup && t.sup[mixerId] != null ? t.sup[mixerId] : supOf(mixerId) * Math.ceil(t.h / 3);
+  }
+  /* Extra con cantidad (reels): devuelve {n, precio} o null */
+  function extraPick(e, v) {
+    if (!v) return null;
+    if (!e.opciones) return { n: 1, precio: e.precio };
+    var n = v === true ? 1 : +v;
+    return e.opciones.filter(function (o) { return o.n === n; })[0] || e.opciones[0];
+  }
+
   /* Horas de cabina que ocupa una reserva */
   function hoursOf(S) {
     if (S.service === "pack") { var p = pack(S.dur); return p ? p.horas : 2; }
@@ -52,7 +66,8 @@
       var tipo = S.service === "usoBono" ? "bono" : "plan";
       svcLabel = (S.kind === "grabacion" ? "Grabación" : "Práctica") + " " + S.dur + " h con tu " + tipo;
       lines.push([svcLabel, 0]);
-      if (sp && S.service === "usoBono") { total += sp; lines.push(["Suplemento " + m.corto, sp]); exNames.push("suplemento " + m.corto + " (+" + sp + " €)"); }
+      if (sp && S.service === "usoBono" && S.abonoMixer === S.mixer) supNotaBono = "Suplemento " + m.corto + " incluido en tu bono";
+      else if (sp && S.service === "usoBono") { total += sp; lines.push(["Suplemento " + m.corto, sp]); exNames.push("suplemento " + m.corto + " (+" + sp + " €)"); }
       if (sp && S.service === "usoPlan") supNotaBono = "Suplemento " + m.corto + " incluido en tu cuota mensual";
       return { total: total, lines: lines, svcLabel: svcLabel, exNames: exNames, supNotaBono: supNotaBono, unit: unit, payNote: "", hours: +S.dur || 1 };
     }
@@ -84,12 +99,16 @@
       lines.push([svcLabel, t.precio]);
     }
     if (sp) {
-      if (S.service === "bono") supNotaBono = m.corto + ": +" + sp + " € en cada visita";
-      else { total += sp; lines.push(["Suplemento " + m.corto, sp]); exNames.push("suplemento " + m.corto + " (+" + sp + " €)"); }
+      var spx = S.service === "bono" ? bonoSup(S.dur, S.mixer) : sp;
+      total += spx; lines.push(["Suplemento " + m.corto + (S.service === "bono" ? " (todo el bono)" : ""), spx]); exNames.push("suplemento " + m.corto + " (+" + spx + " €)");
     }
     var st = extrasState(S);
     d.extras.forEach(function (e) {
-      if (S.extras && S.extras[e.id] && st[e.id].ok) { total += e.precio; lines.push(["Extra: " + e.nombre.toLowerCase(), e.precio]); exNames.push("extra " + e.nombre.toLowerCase()); }
+      var pk = S.extras && st[e.id].ok ? extraPick(e, S.extras[e.id]) : null;
+      if (pk) {
+        var nm = e.opciones ? pk.n + (pk.n > 1 ? " reels adicionales" : " reel adicional") : e.nombre.toLowerCase();
+        total += pk.precio; lines.push(["Extra: " + nm, pk.precio]); exNames.push("extra " + nm);
+      }
     });
     if (S.club && st.club.ok) { total += d.club.precio; lines.push([d.club.nombre, d.club.precio]); exNames.push(d.club.nombre); }
     if (S.service !== "bono") payNote = "";
@@ -106,6 +125,6 @@
 
   window.DGSPrecio = {
     calc: calc, eur: eur, mixer: mixer, supOf: supOf, pack: pack, plan: plan, payOpt: payOpt,
-    hourList: hourList, hoursOf: hoursOf, extrasState: extrasState, planHours: planHours
+    hourList: hourList, hoursOf: hoursOf, bonoSup: bonoSup, extraPick: extraPick, extrasState: extrasState, planHours: planHours
   };
 })();

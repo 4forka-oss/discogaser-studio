@@ -134,11 +134,11 @@
         '<p class="p-more">¿Vienes a menudo? Con un bono la hora te sale desde ' + eur(Math.min.apply(null, P.bonos.tarifas.map(function (t) { return t.precio / t.h; }))) + ' €. <button type="button" class="linkbtn" data-goto-tab="tab-bonos">Ver bonos de práctica</button></p></div>';
     }
     if (bon && !bon.children.length) {
-      bon.innerHTML = '<div class="p-head"><h3>' + P.bonos.titulo + "</h3><p>" + P.bonos.sub + "</p></div>" +
+      bon.innerHTML = '<div class="p-head"><h3>' + P.bonos.titulo + "</h3>" + (P.bonos.sub ? "<p>" + P.bonos.sub + "</p>" : "") + "</div>" +
         '<div class="tiers tiers--4">' + P.bonos.tarifas.map(function (t) {
           var ahorro = P.horaSuelta * t.h - t.precio;
           return tier({ nombre: "Bono " + t.h + " h", precio: t.precio, destaca: t.destaca,
-            items: ["Ahorras " + eur(ahorro) + " €", "Caduca a los " + t.caducaMeses + " meses", "De 1 a 3 h por visita", supText(1) + " por visita"] },
+            items: ["Ahorras " + eur(ahorro) + " €", "Caduca a los " + t.caducaMeses + " meses", "De 1 a 3 h por visita", supMixers().map(function (m) { return m.corto + " +" + window.DGSPrecio.bonoSup(t.h, m.id) + " €"; }).join(" · ") + " (todo el bono)"] },
             "", "Hola, quiero el bono de " + t.h + " h de práctica (" + t.precio + " €) en Discogaser Studio",
             "Sale a <strong>" + eur(t.precio / t.h) + " €/h</strong>");
         }).join("") + "</div>" +
@@ -160,15 +160,17 @@
         '<div class="tiers tiers--4">' + P.planes.map(function (p) {
           return tier(p, "/mes", "Hola, me interesa el plan " + p.nombre + " (" + p.precio + " €/mes) de Discogaser Studio",
             '<span class="tier__sup">Con ' + supText(1, "/mes") + "</span>");
-        }).join("") + "</div>" +
-        '<p class="hint" style="margin-top:18px">Baja antes de 3 meses: se abonan los meses pendientes. Después, baja avisando con 15 días.</p>';
+        }).join("") + "</div>";
     }
     if (ext && !ext.children.length) {
       ext.innerHTML = '<div class="p-head"><h3>Extras</h3><p>Se suman a una grabación o a un pack.</p></div><ul class="rows">' +
-        P.extras.map(function (e) { return '<li><span class="r-name">' + esc(e.nombre) + '</span><span class="price">' + num(e.precio) + " €</span></li>"; }).join("") +
-        '<li><span class="r-name">' + P.club.nombre + '<span class="r-meta">Con público, hasta ' + P.club.aforo + " personas · reserva con " + P.club.antelacionDias + ' días</span></span><span class="price price--red">+' + num(P.club.precio) + " €</span></li>" +
+        P.extras.map(function (e) {
+          if (e.opciones) return '<li><span class="r-name">' + esc(e.nombre) + '<span class="r-meta">' + e.opciones.map(function (o) { return o.n + " por " + o.precio + " €"; }).join(" · ") + '</span></span><span class="price"><small>desde</small> ' + num(e.precio) + " €</span></li>";
+          return '<li><span class="r-name">' + esc(e.nombre) + '</span><span class="price">' + num(e.precio) + " €</span></li>";
+        }).join("") +
+        '<li><span class="r-name">' + P.club.nombre + '<span class="r-meta">Exclusivo: con público, hasta ' + P.club.aforo + " personas · consúltanos antes</span></span><span class=\"price price--red\">+" + num(P.club.precio) + " €</span></li>" +
         '<li><span class="r-name">Masterizado del audio</span><span class="price" style="font-size:24px">Incluido</span></li></ul>' +
-        '<div class="p-block"><div class="p-head"><h3>Suplemento de mezclador</h3><p>Por sesión, da igual que sean 1, 2 o 3 h. En packs, una vez por sesión de grabación; con bono, en cada visita; en planes, una vez al mes.</p></div><ul class="rows">' +
+        '<div class="p-block"><div class="p-head"><h3>Suplemento de mezclador</h3><p>Por sesión, da igual que sean 1, 2 o 3 h. En packs, una vez por sesión de grabación; en bonos, un suplemento único según el bono; en planes, una vez al mes.</p></div><ul class="rows">' +
         P.mezcladores.map(function (m) {
           return '<li><span class="r-name">' + esc(m.nombre) + '</span><span class="price' + (m.suplemento ? "" : '" style="font-size:24px') + '">' + (m.suplemento ? "+" + num(m.suplemento) + " €<small>/sesión</small>" : "Incluido") + "</span></li>";
         }).join("") + "</ul></div>";
@@ -294,16 +296,21 @@
     function buildExtras() {
       if (exBox.children.length) return;
       var html = D.extras.map(function (e) {
+        if (e.opciones) {
+          return '<div class="check check--qty" data-extra="' + e.id + '"><span class="check__t">' + esc(e.nombre) + '<span class="check__note"></span></span>' +
+            '<span class="qty" role="radiogroup" aria-label="' + esc(e.nombre) + '"><label><input type="radio" name="x_' + e.id + '" value="0" checked><span>No</span></label>' +
+            e.opciones.map(function (o) { return '<label><input type="radio" name="x_' + e.id + '" value="' + o.n + '"><span>' + o.n + '<small>' + o.precio + " €</small></span></label>"; }).join("") + "</span></div>";
+        }
         return '<label class="check" data-extra="' + e.id + '"><input type="checkbox" name="extra" value="' + e.id + '"><span class="check__t">' + esc(e.nombre) + '<span class="check__note"></span></span><span class="check__p">+' + e.precio + " €</span></label>";
       }).join("");
-      html += '<label class="check" data-extra="club"><input type="checkbox" name="club" value="1"><span class="check__t">' + D.club.nombre + '<span class="check__note">Con público, hasta ' + D.club.aforo + " personas · reserva " + D.club.antelacionDias + ' días antes</span></span><span class="check__p">+' + D.club.precio + " €</span></label>";
+      html += '<label class="check" data-extra="club"><input type="checkbox" name="club" value="1"><span class="check__t">' + D.club.nombre + '<span class="check__note">Exclusivo · con público, hasta ' + D.club.aforo + ' personas · consúltanos</span></span><span class="check__p">+' + D.club.precio + " €</span></label>";
       exBox.innerHTML = html;
     }
 
     function syncExtras() {
       var svc = S.service, anyOn = false;
       $$(".check", exBox).forEach(function (lab) {
-        var id = lab.getAttribute("data-extra"), input = $("input", lab), note = $(".check__note", lab);
+        var id = lab.getAttribute("data-extra"), inputs = $$("input", lab), note = $(".check__note", lab);
         var ok, why = "";
         if (id === "club") { ok = D.club.aplica.indexOf(svc) > -1; }
         else {
@@ -314,8 +321,10 @@
           if (note && id !== "club") note.textContent = why;
         }
         lab.classList.toggle("is-off", !ok);
-        input.disabled = !ok;
-        if (!ok) { input.checked = false; }
+        inputs.forEach(function (input) {
+          input.disabled = !ok;
+          if (!ok) input.checked = input.type === "radio" && input.value === "0";
+        });
         if (ok) anyOn = true;
       });
       hint.hidden = anyOn;
@@ -331,6 +340,7 @@
       syncExtras();
       S.extras = {}; fd = new FormData(form);
       fd.getAll("extra").forEach(function (id) { S.extras[id] = true; });
+      D.extras.forEach(function (e) { if (e.opciones) { var n = +fd.get("x_" + e.id) || 0; if (n) S.extras[e.id] = n; } });
       S.club = !!fd.get("club");
     }
 
@@ -359,7 +369,7 @@
       $("#cfgUnit").textContent = r.unit;
       if (r.payNote) pay.textContent = r.payNote;
       else if (S.service === "bono") pay.textContent = "Bono: se paga por adelantado y es personal" + (r.supNotaBono ? ". " + r.supNotaBono : "");
-      else pay.innerHTML = "Señal para reservar (" + Math.round(D.senal * 100) + " %): <strong>" + eur(r.total * D.senal) + " €</strong>";
+      else pay.innerHTML = "Pago en efectivo · Bizum o transferencia +" + Math.round((D.recargoBizum || 0) * 100) + " %";
       var tip = $("#cfgTip"), pf = pack("profoto");
       if (S.service === "pack" && S.dur === "pro" && S.extras.foto && pf) {
         var fotoP = D.extras.filter(function (x) { return x.id === "foto"; })[0].precio;
@@ -389,7 +399,7 @@
 
       // Enlace a la reserva online con todo preseleccionado
       var q = "s=" + S.service + "&m=" + S.mixer + "&d=" + encodeURIComponent(S.dur);
-      var ex = Object.keys(S.extras).filter(function (k) { return S.extras[k]; });
+      var ex = Object.keys(S.extras).filter(function (k) { return S.extras[k]; }).map(function (k) { return S.extras[k] > 1 ? k + S.extras[k] : k; });
       if (ex.length) q += "&x=" + ex.join(",");
       if (S.club) q += "&c=1";
       var book = $("#cfgBook");
@@ -672,17 +682,17 @@
     if (FINE) window.addEventListener("pointermove", function (e) { ctl.setPointer(e.clientX / innerWidth * 2 - 1, e.clientY / innerHeight * 2 - 1); }, { passive: true });
   }
 
-  /* ---------- Mapa (facade: Google solo carga al pulsar) ---------- */
+  /* ---------- Mapa de Google ---------- */
   function initMap() {
-    var b = $("#mapBtn"), m = $("#map"); if (!b) return;
-    b.addEventListener("click", function () {
+    var m = $("#map"); if (!m) return;
+    (function () {
       if ($("iframe", m)) return;
       var f = doc.createElement("iframe");
       f.title = "Mapa: Discogaser Studio, estudio DJ en el Polígono La Paz, Teruel";
       f.loading = "lazy"; f.referrerPolicy = "no-referrer-when-downgrade";
       f.src = "https://www.google.com/maps?q=" + encodeURIComponent(D.contacto.mapaQuery) + "&output=embed";
       m.appendChild(f);
-    });
+    })();
   }
 
   /* ---------- Formulario → WhatsApp ---------- */

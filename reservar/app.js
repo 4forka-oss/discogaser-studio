@@ -221,7 +221,7 @@
     if (["pinchar", "grabar", "pack"].indexOf(s) > -1) { W = defaultDraft(); W.service = s; }
     if (q.get("m")) W.mixer = q.get("m");
     if (q.get("d")) W.dur = s === "pack" ? q.get("d") : +q.get("d");
-    (q.get("x") || "").split(",").forEach(function (x) { if (x) W.extras[x] = true; });
+    (q.get("x") || "").split(",").forEach(function (x) { var m = /^([a-z]+?)(\d)$/.exec(x); if (m) W.extras[m[1]] = +m[2]; else if (x) W.extras[x] = true; });
     W.club = q.get("c") === "1";
     if (q.get("f")) { W.day = q.get("f"); W.hour = q.get("h") != null ? +q.get("h") : null; }
     if (s === "bono" || s === "plan") { history.replaceState(null, "", location.pathname + "#/bonos"); return; }
@@ -273,7 +273,10 @@
     if ((W.service === "usoBono" || W.service === "usoPlan") && a && a.hasta && d.dia > a.hasta) return false;
     return true;
   }
-  function priceNow() { return P.calc({ service: W.service, mixer: W.mixer, dur: W.dur, extras: W.extras, club: W.club, kind: W.kind, pay: "1" }); }
+  function priceNow() {
+    var ab = W.abono ? (S.abonos || []).filter(function (a) { return a.id === W.abono; })[0] : null;
+    return P.calc({ service: W.service, mixer: W.mixer, dur: W.dur, extras: W.extras, club: W.club, kind: W.kind, pay: "1", abonoMixer: ab ? ab.mixer : null });
+  }
 
   ROUTES.inicio = function () {
     loading();
@@ -360,11 +363,17 @@
     var st = P.extrasState(W);
     box.innerHTML = '<div class="step"><b>+</b>Extras (opcional)</div><div class="checks" id="oEx">' + D.extras.map(function (e) {
       var s = st[e.id]; if (!s.ok) delete W.extras[e.id];
+      if (e.opciones) {
+        var cur = W.extras[e.id] === true ? 1 : (+W.extras[e.id] || 0);
+        return '<div class="check' + (s.ok ? "" : " is-off") + '" style="flex-wrap:wrap"><span class="check__t">' + esc(e.nombre) + '</span><select class="input" data-qty="' + e.id + '" style="width:auto;min-width:150px"' + (s.ok ? "" : " disabled") + '><option value="0">No</option>' +
+          e.opciones.map(function (o) { return '<option value="' + o.n + '"' + (cur === o.n ? " selected" : "") + ">" + o.n + " por " + o.precio + " €</option>"; }).join("") + "</select></div>";
+      }
       return '<label class="check' + (s.ok ? "" : " is-off") + '"><input type="checkbox" value="' + e.id + '"' + (W.extras[e.id] ? " checked" : "") + (s.ok ? "" : " disabled") + '><span class="check__t">' + esc(e.nombre) + (s.why ? "<small>" + esc(s.why) + "</small>" : "") + '</span><span class="check__p">+' + e.precio + " €</span></label>";
     }).join("") +
-      '<label class="check"><input type="checkbox" value="club"' + (W.club ? " checked" : "") + '><span class="check__t">' + esc(D.club.nombre) + "<small>Con público, hasta " + D.club.aforo + " personas · reserva " + AV.club + ' días antes</small></span><span class="check__p">+' + D.club.precio + " €</span></label></div>";
+      '<label class="check"><input type="checkbox" value="club"' + (W.club ? " checked" : "") + '><span class="check__t">' + esc(D.club.nombre) + "<small>Exclusivo · con público, hasta " + D.club.aforo + ' personas · te confirmamos disponibilidad</small></span><span class="check__p">+' + D.club.precio + " €</span></label></div>";
     $("#oEx").addEventListener("change", function (e) {
-      if (e.target.value === "club") { W.club = e.target.checked; W.day = null; W.hour = null; drawCal(); }
+      if (e.target.getAttribute("data-qty")) { var n = +e.target.value; if (n) W.extras[e.target.getAttribute("data-qty")] = n; else delete W.extras[e.target.getAttribute("data-qty")]; }
+      else if (e.target.value === "club") { W.club = e.target.checked; W.day = null; W.hour = null; drawCal(); }
       else W.extras[e.target.value] = e.target.checked;
       saveDraft(); drawSummary();
     });
@@ -417,13 +426,13 @@
   function drawSummary(scroll) {
     var box = $("#sumBox"); if (!box) return;
     var r = priceNow(), m = P.mixer(W.mixer), ready = W.day && W.hour != null;
-    var senal = (W.service === "pinchar" || W.service === "grabar" || W.service === "pack") && D.senal ? Math.round(r.total * D.senal * 100) / 100 : 0;
+
     box.innerHTML = '<div class="step"><b>✓</b>Resumen</div><div class="card card--red" id="sumCard">' +
       '<ul class="lines"><li><span>Cabina</span><b>' + esc(m.corto) + " + " + (D.platos || 4) + " CDJ-3000</b></li>" +
       r.lines.map(function (l) { return "<li><span>" + esc(l[0]) + "</span><b>" + l[1] + " €</b></li>"; }).join("") +
       (ready ? "<li><span>Cuándo</span><b>" + esc(fechaCorta(W.day)) + ", " + franja(W.hour, bookHours()) + "</b></li>" : "") + "</ul>" +
       '<div class="total"><span class="muted small">' + esc(D.ivaCorto || "IVA incluido") + (r.supNotaBono ? "<br>" + esc(r.supNotaBono) : "") + "</span><strong>" + P.eur(r.total) + " €</strong></div>" +
-      (senal ? '<p class="small muted" style="margin:8px 0 0">Sin pago online: te confirmamos la reserva por email.</p>' : "") +
+      '<p class="small muted" style="margin:8px 0 0">Te confirmamos la reserva por email. ' + esc(D.pago || "") + "</p>" +
       '<label class="field"><span>Notas para el estudio (opcional)</span><textarea class="input" id="iNotes" maxlength="600" placeholder="Ej.: traigo mi USB, vengo con un amigo, quiero probar el Model 1…">' + esc(W.notes) + "</textarea></label>" +
       "</div>" +
       '<div class="cta-bar"><button class="btn btn--red btn--block" id="bBook"' + (ready ? "" : " disabled") + ">" + (ready ? "Solicitar reserva · " + P.eur(r.total) + " €" : "Elige día y hora") + "</button></div>" +
@@ -443,7 +452,7 @@
       btn.disabled = true; btn.textContent = "Reservando…";
       api("reservas", {
         servicio: W.service, detalle: String(W.dur), horas: bookHours(), mixer: W.mixer, tipo: W.kind, abono: W.abono,
-        extras: Object.keys(W.extras).filter(function (k) { return W.extras[k]; }), club: W.club,
+        extras: Object.keys(W.extras).filter(function (k) { return W.extras[k]; }).map(function (k) { return W.extras[k] > 1 ? k + W.extras[k] : k; }), club: W.club,
         dia: W.day, hora: W.hour, precio: r.total, texto: r.svcLabel + " · " + m.corto, lineas: r.lines, notas: W.notes
       }).then(function (j) {
         var b = j.reserva; W = defaultDraft(); sstore("dgs_draft", null); AV.loaded = 0;
@@ -564,10 +573,10 @@
           html = "<h3>Plan " + esc(p.nombre) + '</h3><p class="muted small">' + esc(p.items.join(" · ")) + ". " + esc(D.planesSub) + "</p>" +
             '<div class="step">Forma de pago</div><div class="opts" id="oPay">' + D.planesPago.map(function (o) { return opt("pay", o.id, o.nombre.replace(/ [−-]\d+ %$/, ""), o.dto ? "−" + Math.round(o.dto * 100) + " %" : "Cada mes", st.pay === o.id); }).join("") + "</div>";
         }
-        html += '<div class="step">Mezclador habitual</div><div class="opts" id="oMx">' + D.mezcladores.map(function (m) { return opt("mx", m.id, m.corto, m.suplemento ? "+" + m.suplemento + (tipo === "plan" ? " €/mes" : " €/visita") : "Incluido", st.mixer === m.id); }).join("") + "</div>" +
+        html += '<div class="step">Mezclador habitual</div><div class="opts" id="oMx">' + D.mezcladores.map(function (m) { return opt("mx", m.id, m.corto, m.suplemento ? "+" + (tipo === "plan" ? m.suplemento + " €/mes" : P.bonoSup(v, m.id) + " €") : "Incluido", st.mixer === m.id); }).join("") + "</div>" +
           '<ul class="lines" style="margin-top:14px">' + r.lines.map(function (l) { return "<li><span>" + esc(l[0]) + "</span><b>" + l[1] + " €</b></li>"; }).join("") + "</ul>" +
           '<div class="total"><span class="small muted">' + esc(r.payNote || r.supNotaBono || D.ivaCorto) + "</span><strong>" + P.eur(r.total) + " " + r.unit + "</strong></div>" +
-          '<button class="btn btn--red btn--block" style="margin-top:16px" id="bReq">Solicitar · pago en el estudio</button>';
+          '<button class="btn btn--red btn--block" style="margin-top:16px" id="bReq">Solicitar · pago en efectivo</button>';
         openSheet(html, function (b) {
           var op = $("#oPay", b); if (op) op.onchange = function (e) { st.pay = e.target.value; body(); };
           $("#oMx", b).onchange = function (e) { st.mixer = e.target.value; body(); };

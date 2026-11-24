@@ -28,8 +28,9 @@ window.DGS = {
   // Precio de la hora suelta: sirve para calcular el ahorro de horas largas y bonos
   horaSuelta: 15,
 
-  // Porcentaje de señal para reservar
-  senal: 0.30,
+  // Forma de pago: efectivo; Bizum o transferencia con recargo
+  pago: "Todos los pagos se hacen en efectivo en el estudio. Por Bizum o transferencia hay un recargo del 15 %.",
+  recargoBizum: 0.15,
 
   /* Suplemento de mezclador: se cobra POR SESIÓN (por visita), da igual
      que sea 1, 2 o 3 h. Packs: una vez por sesión de grabación (Pack Día
@@ -55,16 +56,18 @@ window.DGS = {
   /* ---------- Bonos de práctica DJ ---------- */
   bonos: {
     titulo: "Bonos de práctica DJ",
-    sub: "Paga una vez y ve gastando horas de cabina cuando quieras. El precio por hora más bajo del estudio.",
+    sub: "",
+    /* sup: suplemento de mezclador para todo el bono (se paga una vez al
+       comprarlo). Cuanto más grande el bono, menos sale por hora. */
     tarifas: [
-      { h: 10, precio: 90,  caducaMeses: 3 },
-      { h: 20, precio: 160, caducaMeses: 4 },
-      { h: 30, precio: 210, caducaMeses: 6, destaca: true },
-      { h: 40, precio: 240, caducaMeses: 6 }
+      { h: 10, precio: 90,  caducaMeses: 3, sup: { xone: 35, model1: 40 } },
+      { h: 20, precio: 160, caducaMeses: 4, sup: { xone: 60, model1: 70 } },
+      { h: 30, precio: 210, caducaMeses: 6, sup: { xone: 75, model1: 90 }, destaca: true },
+      { h: 40, precio: 240, caducaMeses: 6, sup: { xone: 80, model1: 100 } }
     ],
     condiciones: [
       "En cada visita reservas 1, 2 o 3 horas seguidas, nunca más de 3",
-      "Cabina con 4 CDJ-3000. Con Xone:96 o Model 1, suplemento en cada visita",
+      "Cabina con 4 CDJ-3000. Con Xone:96 o Model 1, un suplemento único al comprar el bono",
       "Se pagan por adelantado y son personales",
       "El ahorro se calcula sobre la hora suelta (15 €/h)"
     ]
@@ -128,7 +131,8 @@ window.DGS = {
      aplica: en qué servicios del configurador se pueden marcar
      ("grabar", "pack"). "noEnPack": ids de pack donde ya va incluido. */
   extras: [
-    { id: "reel",     nombre: "Reel adicional",               precio: 15,  aplica: ["grabar", "pack"] },
+    { id: "reel",     nombre: "Reels adicionales",            precio: 15,  aplica: ["grabar", "pack"],
+      opciones: [{ n: 1, precio: 15 }, { n: 2, precio: 20 }, { n: 3, precio: 25 }, { n: 4, precio: 30 }] },
     { id: "edicion",  nombre: "Vídeo con edición de planos",  precio: 30,  aplica: ["grabar"] },
     { id: "foto",     nombre: "Fotógrafo",                     precio: 100, aplica: ["grabar", "pack"], noEnPack: ["profoto", "dia"] },
     { id: "visuales", nombre: "Pack 3 visuales con tu logo",   precio: 20,  aplica: ["grabar", "pack"] },
@@ -138,7 +142,8 @@ window.DGS = {
   /* ---------- Formato Club ---------- */
   club: {
     nombre: "Formato Club",
-    precio: 20,
+    precio: 50,
+    nota: "Exclusivo · consúltanos disponibilidad",
     aforo: 12,
     antelacionDias: 7,
     aplica: ["grabar", "pack"]
