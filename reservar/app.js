@@ -178,7 +178,7 @@
       return '<a class="tab' + (cur === t[0] ? " is-on" : "") + '" href="#/' + t[0] + '"' + (cur === t[0] ? ' aria-current="page"' : "") + ">" + ICON[t[2] || t[0]] + "<span>" + t[1] + "</span>" +
         (t[0] === "hoy" && S.pend ? '<span class="tab__badge">' + S.pend + "</span>" : "") + "</a>";
     }).join("") + "</div>";
-    var tag = $("#topTag"); tag.textContent = isAdmin() ? "Equipo" : "Studio"; tag.classList.toggle("is-admin", !!isAdmin());
+    var tag = $("#topTag"); tag.textContent = isAdmin() ? "Equipo" : ""; tag.classList.toggle("is-admin", !!isAdmin());
   }
   function route() {
     var h = location.hash.replace(/^#\/?/, "").split("?")[0].split("/");

@@ -45,7 +45,7 @@
     var table = el("div", "booth__table", stage);
     var front = el("div", "booth__tfront", table);
     var logo = el("img", "booth__logo", front);
-    logo.src = "img/logo-discogaser-312.webp"; logo.alt = ""; logo.decoding = "async";
+    logo.src = "img/logo-studio44.svg"; logo.alt = ""; logo.decoding = "async";
     var labels = el("div", "booth__labels", front);
     el("div", "booth__led", front);
     var pool = { cdj: [], mixers: {} };
