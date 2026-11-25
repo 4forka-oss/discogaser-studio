@@ -110,8 +110,8 @@ window.DGS = {
      practicaH / grabacionH: horas al mes que la app de reservas deja
      gastar con cada plan (cabina de práctica y horas de grabación). */
   planes: [
-    { id: "basico",   nombre: "Básico",    precio: 49,  destaca: false, practicaH: 0, grabacionH: 1,
-      items: ["1 h de grabación", "2 reels"] },
+    { id: "basico",   nombre: "Básico",    precio: 49,  destaca: false, practicaH: 1, grabacionH: 1,
+      items: ["1 h de grabación", "2 reels", "1 h de práctica"] },
     { id: "residente",nombre: "Residente", precio: 69,  destaca: false, practicaH: 8, grabacionH: 1,
       items: ["8 h de cabina", "1 h de grabación"] },
     { id: "creador",  nombre: "Creador",   precio: 89,  destaca: true, practicaH: 2, grabacionH: 2,
