@@ -67,9 +67,7 @@ window.DGS = {
     ],
     condiciones: [
       "En cada visita reservas 1, 2 o 3 horas seguidas, nunca más de 3",
-      "Cabina con 4 CDJ-3000. Con Xone:96 o Model 1, un suplemento único al comprar el bono",
-      "Se pagan por adelantado y son personales",
-      "El ahorro se calcula sobre la hora suelta (15 €/h)"
+      "Se pagan por adelantado y son personales"
     ]
   },
 

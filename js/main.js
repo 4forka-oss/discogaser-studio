@@ -130,8 +130,7 @@
     var bon = $("#panel-bonos"), pin = $("#panel-pinchar"), gra = $("#panel-grabar"), pac = $("#panel-packs"), pla = $("#panel-planes"), ext = $("#panel-extras");
     if (pin && !pin.children.length) {
       pin.innerHTML =
-        '<div class="p-block"><div class="p-head"><h3>' + P.pinchar.titulo + "</h3><p>" + P.pinchar.sub + "</p></div>" + rows(P.pinchar.tarifas, "", ahorroMeta(P.pinchar.tarifas[0].precio)) + supNote() +
-        '<p class="p-more">¿Vienes a menudo? Con un bono la hora te sale desde ' + eur(Math.min.apply(null, P.bonos.tarifas.map(function (t) { return t.precio / t.h; }))) + ' €. <button type="button" class="linkbtn" data-goto-tab="tab-bonos">Ver bonos de práctica</button></p></div>';
+        '<div class="p-block"><div class="p-head"><h3>' + P.pinchar.titulo + "</h3><p>" + P.pinchar.sub + "</p></div>" + rows(P.pinchar.tarifas, "", ahorroMeta(P.pinchar.tarifas[0].precio)) + supNote() + '</div>';
     }
     if (bon && !bon.children.length) {
       bon.innerHTML = '<div class="p-head"><h3>' + P.bonos.titulo + "</h3>" + (P.bonos.sub ? "<p>" + P.bonos.sub + "</p>" : "") + "</div>" +
